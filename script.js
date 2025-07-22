@@ -51,16 +51,32 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p style="color: #6c757d; font-size: 12px;">Report Generated on: ${new Date().toLocaleString('en-US')}</p>
                 </div>
                 <table style="width: 100%; border-collapse: collapse;">
-                    <thead><tr><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th><th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th>
+                        </tr>
+                    </thead>
                     <tbody>${rows}</tbody>
-                    <tfoot style="font-weight: bold;"><tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr><tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr><tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr></tfoot>
+                    <tfoot style="font-weight: bold;">
+                        <tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
+                    </tfoot>
                 </table>
-                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">all Rights reserve © Tnayem48</footer>
-            </div>`;
+                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">
+                    all Rights reserve © Tnayem48
+                </footer>
+            </div>
+        `;
         
         printContainer.innerHTML = reportHTML;
+        document.body.classList.add('printing-active');
         window.print();
-        printContainer.innerHTML = ''; // প্রিন্টের পর কন্টেইনার খালি করে দিন
+        document.body.classList.remove('printing-active');
+        printContainer.innerHTML = '';
     }
 
     // === ফাংশনগুলোকে গ্লোবালি অ্যাক্সেসযোগ্য করা ===

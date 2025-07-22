@@ -31,21 +31,11 @@ main {
 
 /* === প্রিন্টের জন্য বিশেষ স্টাইল (নতুন এবং নির্ভরযোগ্য) === */
 @media print {
-    /* প্রিন্টের সময় অ্যাপের যে অংশগুলো লুকানো দরকার */
-    #app-wrapper, #fab-add-cashbook, .modal, .toast-container {
+    /* একটি ক্লাস যোগ করে প্রিন্ট মোড নিয়ন্ত্রণ করা হবে */
+    body.printing-active > *:not(#print-container) {
         display: none !important;
     }
-    
-    /* প্রিন্ট কন্টেইনার এবং এর ভেতরের সবকিছু দৃশ্যমান করুন */
-    #print-container, #print-container * {
+    body.printing-active #print-container {
         display: block !important;
-        visibility: visible !important;
-    }
-
-    #print-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
     }
 }
