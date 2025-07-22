@@ -9,18 +9,15 @@ main {
     z-index: 1100; /* নিশ্চিত করে যেন টোস্ট সবার উপরে থাকে */
 }
 
+/* অন্যান্য স্টাইল অপরিবর্তিত */
 .fab { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; border-radius: 50%; z-index: 1050; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; justify-content: center; align-items: center; transition: all 0.3s ease; }
 .fab i { font-size: 28px; }
-
 .card { border: none; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08); }
 .card-link { text-decoration: none; color: inherit; display: block; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .card-link:hover .card { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12); }
-
 .page { display: none; }
 .page.active { display: block; animation: fadeIn 0.5s; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-/* নতুন অ্যানিমেটেড টগল সুইচ */
 .transaction-switch { position: relative; background-color: #e9ecef; border-radius: 50px; padding: 5px; display: grid; grid-template-columns: 1fr 1fr; }
 .transaction-switch::before { content: ''; position: absolute; width: calc(50% - 5px); height: calc(100% - 10px); top: 5px; left: 5px; border-radius: 50px; transition: all 0.3s cubic-bezier(0.77, 0, 0.175, 1); }
 .transaction-switch.out-active::before { background-color: #dc3545; transform: translateX(0); }
@@ -30,13 +27,21 @@ main {
 .transaction-switch.out-active .btn-in, .transaction-switch.in-active .btn-out { color: #495057; }
 
 /* === প্রিন্টের জন্য বিশেষ স্টাইল (নতুন এবং নির্ভরযোগ্য) === */
+#print-container {
+    display: none; /* স্বাভাবিক অবস্থায় লুকানো থাকবে */
+}
+
 @media print {
-    /* প্রিন্ট করার সময় বডির ভেতরের সব এলিমেন্ট লুকিয়ে ফেলুন */
-    body.printing > * {
+    /* প্রিন্ট করার সময় অ্যাপের প্রধান অংশগুলো লুকিয়ে ফেলুন */
+    .no-print {
         display: none !important;
     }
+    main {
+        display: none !important;
+    }
+    
     /* শুধুমাত্র প্রিন্ট কন্টেইনার এবং এর ভেতরের সবকিছু দেখান */
-    body.printing #print-container {
+    #print-container {
         display: block !important;
     }
 }
