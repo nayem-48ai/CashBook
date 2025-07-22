@@ -30,21 +30,14 @@ main {
 .transaction-switch.out-active .btn-in, .transaction-switch.in-active .btn-out { color: #495057; }
 
 /* === প্রিন্টের জন্য বিশেষ স্টাইল (নতুন এবং নির্ভরযোগ্য) === */
+.print-area {
+    display: none; /* সাধারণ ভিউতে এটি দেখা যাবে না */
+}
 @media print {
-    /* প্রথমে, বডির সরাসরি সব চাইল্ড লুকিয়ে ফেলুন */
-    body > * {
-        display: none !important;
+    body > *:not(.print-area) {
+        display: none !important; /* প্রিন্টের সময় প্রিন্ট-এরিয়া ছাড়া সবকিছু হাইড করুন */
     }
-    /* শুধুমাত্র প্রিন্ট কন্টেইনার এবং এর ভেতরের অংশ দেখান */
-    #print-container, #print-container * {
-        display: block !important;
-        visibility: visible !important;
-    }
-    /* প্রিন্ট কন্টেইনার যেন পুরো পেজ জুড়ে থাকে */
-    #print-container {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
+    .print-area {
+        display: block !important; /* শুধুমাত্র প্রিন্ট-এরিয়া দেখান */
     }
 }

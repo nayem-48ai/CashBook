@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let allCashbooks = [], categories = [], currentCashbookId = null;
 
     // === HTML এলিমেন্টস ===
-    const pageHome = document.getElementById('page-home'), pageDetails = document.getElementById('page-details'), pageCategories = document.getElementById('page-categories'), pageAbout = document.getElementById('page-about'), fab = document.getElementById('fab-add-cashbook'), addCashbookModal = new bootstrap.Modal(document.getElementById('addCashbookModal')), offcanvasEl = document.getElementById('offcanvasNavbar'), toastContainer = document.querySelector('.toast-container');
+    const pageHome = document.getElementById('page-home'), pageDetails = document.getElementById('page-details'), pageCategories = document.getElementById('page-categories'), pageAbout = document.getElementById('page-about'), fab = document.getElementById('fab-add-cashbook'), addCashbookModal = new bootstrap.Modal(document.getElementById('addCashbookModal')), offcanvasEl = document.getElementById('offcanvasNavbar'), toastContainer = document.querySelector('.toast-container'), printContainer = document.getElementById('print-container');
 
     // === নতুন Helper ফাংশন: Toast দেখানো ===
     function showToast(message, type = 'success') { const toastEl = document.createElement('div'); toastEl.className = `toast align-items-center text-white bg-${type} border-0`; toastEl.innerHTML = `<div class="d-flex"><div class="toast-body">${message}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>`; toastContainer.appendChild(toastEl); const toast = new bootstrap.Toast(toastEl, { delay: 2000 }); toast.show(); toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove()); }
@@ -37,52 +37,50 @@ document.addEventListener('DOMContentLoaded', function () {
     // === নতুন এবং সম্পূর্ণ কার্যকরী প্রিন্ট ফাংশন ===
     function printCashbook() {
         const book = allCashbooks[currentCashbookId];
-        const printContainer = document.getElementById('print-container');
         const { totalIn, totalOut, balance } = calculateTotals(book.transactions);
         
-        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
-            .map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString('en-CA')}</td>
-                    <td>${t.category}</td>
-                    <td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td>
-                    <td style="text-align: right;">${t.amount.toFixed(2)}</td>
-                </tr>
-            `).join('');
-
+        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date)).map(t => `<tr><td>${new Date(t.date).toLocaleDateString('en-CA')}</td><td>${t.category}</td><td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td><td style="text-align: right;">${t.amount.toFixed(2)}</td></tr>`).join('');
+        
         const reportHTML = `
             <div style="font-family: Arial, sans-serif; margin: 20px;">
-                <div style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
-                    <h1 style="margin: 0; color: #0d6efd;">CashBook</h1>
+                <header style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                    <h1 style="margin: 0; color: #0d6efd;">My Cashbook</h1>
                     <h2 style="margin: 5px 0; color: #343a40;">${book.name}</h2>
                     <p style="color: #6c757d; font-size: 12px;">Report Generated on: ${new Date().toLocaleString('en-US')}</p>
-                </div>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
-                    <tfoot style="font-weight: bold;">
-                        <tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
-                    </tfoot>
-                </table>
+                </header>
+                <main>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th>
+                                <th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                        <tfoot style="font-weight: bold;">
+                            <tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
+                            <tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr>
+                            <tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
+                        </tfoot>
+                    </table>
+                </main>
                 <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">
                     all Rights reserve © Tnayem48
                 </footer>
             </div>
         `;
         
+        // প্রিন্ট কন্টেইনারে রিপোর্ট যুক্ত করুন এবং প্রিন্ট ক্লাস দিন
         printContainer.innerHTML = reportHTML;
+        document.body.classList.add('print-area');
+
+        // প্রিন্ট ডায়ালগ খুলুন
         window.print();
+        
+        // প্রিন্টের পর প্রিন্ট ক্লাস এবং কন্টেন্ট সরিয়ে দিন
+        document.body.classList.remove('print-area');
         printContainer.innerHTML = '';
     }
 
