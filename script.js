@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
             `).join('');
 
         const reportHTML = `
-            <div style="font-family: Arial, sans-serif;">
+            <div style="font-family: Arial, sans-serif; margin: 20px;">
                 <div style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
                     <h1 style="margin: 0; color: #0d6efd;">CashBook</h1>
                     <h2 style="margin: 5px 0; color: #343a40;">${book.name}</h2>
@@ -80,7 +80,9 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
         
         printContainer.innerHTML = reportHTML;
+        document.body.classList.add('printing');
         window.print();
+        document.body.classList.remove('printing');
         printContainer.innerHTML = '';
     }
 
