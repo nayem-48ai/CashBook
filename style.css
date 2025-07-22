@@ -30,14 +30,27 @@ main {
 .transaction-switch.out-active .btn-in, .transaction-switch.in-active .btn-out { color: #495057; }
 
 /* === প্রিন্টের জন্য বিশেষ স্টাইল (নতুন এবং নির্ভরযোগ্য) === */
-.print-area {
-    display: none; /* সাধারণ ভিউতে এটি দেখা যাবে না */
-}
 @media print {
-    body > *:not(.print-area) {
-        display: none !important; /* প্রিন্টের সময় প্রিন্ট-এরিয়া ছাড়া সবকিছু হাইড করুন */
+    /* প্রিন্ট করার সময় বডির ভেতরের সব এলিমেন্ট লুকিয়ে ফেলুন */
+    body > * {
+        visibility: hidden !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
-    .print-area {
-        display: block !important; /* শুধুমাত্র প্রিন্ট-এরিয়া দেখান */
+    /* শুধুমাত্র প্রিন্ট কন্টেইনার এবং এর ভেতরের সবকিছু দেখান */
+    #print-container, #print-container * {
+        visibility: visible !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    /* প্রিন্ট কন্টেইনার যেন পুরো পেজ জুড়ে থাকে */
+    #print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px !important;
     }
 }
