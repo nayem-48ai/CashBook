@@ -37,55 +37,53 @@ document.addEventListener('DOMContentLoaded', function () {
     // === নতুন এবং সম্পূর্ণ কার্যকরী প্রিন্ট ফাংশন ===
     function printCashbook() {
         const book = allCashbooks[currentCashbookId];
+        const printContainer = document.getElementById('print-container');
         const { totalIn, totalOut, balance } = calculateTotals(book.transactions);
-        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date)).map(t => `<tr><td>${new Date(t.date).toLocaleDateString('en-CA')}</td><td>${t.category}</td><td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td><td style="text-align: right;">${t.amount.toFixed(2)}</td></tr>`).join('');
         
+        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
+            .map(t => `
+                <tr>
+                    <td>${new Date(t.date).toLocaleDateString('en-CA')}</td>
+                    <td>${t.category}</td>
+                    <td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td>
+                    <td style="text-align: right;">${t.amount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+
         const reportHTML = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <title>Print - ${book.name}</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 20px; }
-                    .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
-                    .header h1 { margin: 0; color: #0d6efd; }
-                    .header h2 { margin: 5px 0; color: #343a40; }
-                    .header p { color: #6c757d; font-size: 12px; }
-                    table { width: 100%; border-collapse: collapse; }
-                    th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-                    thead { background-color: #f8f9fa; }
-                    tfoot { font-weight: bold; }
-                    .text-right { text-align: right; }
-                    .color-green { color: green; }
-                    .color-red { color: red; }
-                    footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; }
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>CashBook</h1>
-                    <h2>${book.name}</h2>
-                    <p>Report Generated on: ${new Date().toLocaleString('en-US')}</p>
+            <div style="font-family: Arial, sans-serif; margin: 20px;">
+                <div style="text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+                    <h1 style="margin: 0; color: #0d6efd;">CashBook</h1>
+                    <h2 style="margin: 5px 0; color: #343a40;">${book.name}</h2>
+                    <p style="color: #6c757d; font-size: 12px;">Report Generated on: ${new Date().toLocaleString('en-US')}</p>
                 </div>
-                <table>
-                    <thead><tr><th>Date</th><th>Category</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                    <tfoot>
-                        <tr><td colspan="3" class="text-right">Total Cash In:</td><td class="text-right color-green">${totalIn.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" class="text-right">Total Cash Out:</td><td class="text-right color-red">${totalOut.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" class="text-right" style="border-top: 1px solid #ddd; padding-top: 8px;">Balance:</td><td class="text-right" style="border-top: 1px solid #ddd; padding-top: 8px; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th>
+                            <th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                    <tfoot style="font-weight: bold;">
+                        <tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
                     </tfoot>
                 </table>
-                <footer>all Rights reserve © Tnayem48</footer>
-            </body>
-            </html>
+                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">
+                    all Rights reserve © Tnayem48
+                </footer>
+            </div>
         `;
-
-        const printWindow = window.open('', '_blank');
-        printWindow.document.write(reportHTML);
-        printWindow.document.close();
-        printWindow.focus(); // কিছু ব্রাউজারের জন্য প্রয়োজন
-        setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+        
+        printContainer.innerHTML = reportHTML;
+        window.print();
+        printContainer.innerHTML = '';
     }
 
     // === ফাংশনগুলোকে গ্লোবালি অ্যাক্সেসযোগ্য করা ===
