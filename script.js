@@ -31,58 +31,61 @@ document.addEventListener('DOMContentLoaded', function () {
     function renderTransactions() { const list = document.getElementById('transaction-list'), summary = document.getElementById('transaction-summary'), book = allCashbooks[currentCashbookId]; list.innerHTML = book.transactions.length === 0 ? '<tr><td colspan="5" class="text-center p-4 text-muted">কোনো লেনদেন নেই।</td></tr>' : [...book.transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).map(t => `<tr><td>${new Date(t.date).toLocaleDateString('bn-BD')}</td><td>${t.category}</td><td class="fw-bold ${t.type === 'in' ? 'text-success' : 'text-danger'}">${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td><td class="text-end">${t.amount.toFixed(2)}</td><td>${t.notes || ''}</td></tr>`).join(''); const { totalIn, totalOut, balance } = calculateTotals(book.transactions); summary.innerHTML = `<tr><td colspan="3" class="text-end text-success">Total Cash In:</td><td class="text-end text-success">${totalIn.toFixed(2)}</td><td></td></tr><tr><td colspan="3" class="text-end text-danger">Total Cash Out:</td><td class="text-end text-danger">${totalOut.toFixed(2)}</td><td></td></tr><tr><td colspan="3" class="text-end border-top pt-2">Balance:</td><td class="text-end border-top pt-2 ${balance >= 0 ? 'text-success' : 'text-danger'}">${balance.toFixed(2)}</td><td></td></tr>`; }
     function calculateTotals(transactions) { const totalIn = transactions.filter(t => t.type === 'in').reduce((sum, t) => sum + t.amount, 0); const totalOut = transactions.filter(t => t.type === 'out').reduce((sum, t) => sum + t.amount, 0); return { totalIn, totalOut, balance: totalIn - totalOut }; }
     function editCashbookName() { const newName = prompt('Enter new name:', allCashbooks[currentCashbookId].name); if (newName && newName.trim()) { allCashbooks[currentCashbookId].name = newName.trim(); saveData(); document.getElementById('cashbook-title').textContent = newName.trim(); loadCashbooks(); } }
-    function deleteCashbook() { if (confirm(`আপনি কি "${allCashbooks[currentCashbookId].name}" ক্যাশবুকটি ডিলেট করতে নিশ্চিত?`)) { allCashbooks.splice(currentCashbookId, 1); saveData(); showPage('home'); } }
-    function loadAboutPage() { pageAbout.innerHTML = `<div class="card"><div class="card-body p-4 text-center"><img src="https://i.ibb.co/6wmT9Qx/cashbook-logo.png" alt="Logo" style="width: 80px;" class="mb-3"><h2 class="card-title">My Cashbook</h2><p class="text-muted">Version 1.0.0</p><hr><p class="lead">This is a simple, client-side cashbook application built with Bootstrap and JavaScript.</p><p>It helps you manage your daily income and expenses efficiently. All your data is securely stored in your browser's local storage.</p><p class="mt-4"><strong>Developed by:</strong> Tnayem48</p></div></div>`; }
+    function deleteCashbook() { if (confirm(`আপনি কি "${allCashbooks[currentCashbookId].name}" ক্যাশবুকটি ডিলেট করতে নিশ্চিত?`)) { allCashbooks.splice(currentCashbookId, 1); saveData(); showPage('page-home'); } }
+    function loadAboutPage() { pageAbout.innerHTML = `<div class="card"><div class="card-body p-4 text-center"><img src="https://i.ibb.co/nLnSDB1/android-chrome-192x192.png" alt="Logo" style="width: 80px;" class="mb-3"><h2 class="card-title">My Cashbook</h2><p class="text-muted">Version 1.0.0</p><hr><p class="lead">This is a simple, client-side cashbook application built with Bootstrap and JavaScript.</p><p>It helps you manage your daily income and expenses efficiently. All your data is securely stored in your browser's local storage.</p><p class="mt-4"><strong>Developed by:</strong> Tnayem48</p></div></div>`; }
 
-    // === নতুন এবং উন্নত প্রিন্ট ফাংশন ===
+    // === নতুন এবং সম্পূর্ণ কার্যকরী প্রিন্ট ফাংশন ===
     function printCashbook() {
         const book = allCashbooks[currentCashbookId];
-        const printContainer = document.getElementById('print-container');
         const { totalIn, totalOut, balance } = calculateTotals(book.transactions);
+        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date)).map(t => `<tr><td>${new Date(t.date).toLocaleDateString('en-CA')}</td><td>${t.category}</td><td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td><td style="text-align: right;">${t.amount.toFixed(2)}</td></tr>`).join('');
         
-        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
-            .map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString('bn-BD')}</td>
-                    <td>${t.category}</td>
-                    <td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td>
-                    <td style="text-align: right;">${t.amount.toFixed(2)}</td>
-                </tr>
-            `).join('');
-
-        const printContent = `
-            <div style="font-family: Arial, sans-serif; width: 90%; margin: auto;">
-                <h1 style="text-align: center; color: #0d6efd; margin-bottom: 0;">CashBook</h1>
-                <h2 style="text-align: center; color: #343a40; margin-top: 5px;">${book.name}</h2>
-                <p style="text-align: center; color: #6c757d; font-size: 12px;">Report Generated on: ${new Date().toLocaleString('bn-BD')}</p>
-                <hr>
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="background-color: #f2f2f2;">
-                        <tr>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">তারিখ</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">ক্যাটাগরি</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">ধরন</th>
-                            <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">পরিমাণ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
-                    <tfoot style="font-weight: bold;">
-                        <tr><td colspan="3" style="text-align: right; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right;">Total Cash Out:</td><td style="text-align: right; color: red;">${totalOut.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right; border-top: 1px solid #ddd; padding-top: 5px;">Balance:</td><td style="text-align: right; border-top: 1px solid #ddd; padding-top: 5px; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
+        const reportHTML = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <title>Print - ${book.name}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .header { text-align: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+                    .header h1 { margin: 0; color: #0d6efd; }
+                    .header h2 { margin: 5px 0; color: #343a40; }
+                    .header p { color: #6c757d; font-size: 12px; }
+                    table { width: 100%; border-collapse: collapse; }
+                    th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+                    thead { background-color: #f8f9fa; }
+                    tfoot { font-weight: bold; }
+                    .text-right { text-align: right; }
+                    .color-green { color: green; }
+                    .color-red { color: red; }
+                    footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>CashBook</h1>
+                    <h2>${book.name}</h2>
+                    <p>Report Generated on: ${new Date().toLocaleString('en-US')}</p>
+                </div>
+                <table>
+                    <thead><tr><th>Date</th><th>Category</th><th>Type</th><th class="text-right">Amount</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                    <tfoot>
+                        <tr><td colspan="3" class="text-right">Total Cash In:</td><td class="text-right color-green">${totalIn.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" class="text-right">Total Cash Out:</td><td class="text-right color-red">${totalOut.toFixed(2)}</td></tr>
+                        <tr><td colspan="3" class="text-right" style="border-top: 1px solid #ddd; padding-top: 8px;">Balance:</td><td class="text-right" style="border-top: 1px solid #ddd; padding-top: 8px; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
                     </tfoot>
                 </table>
-                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">
-                    all Rights reserve © Tnayem48
-                </footer>
-            </div>
+                <footer>all Rights reserve © Tnayem48</footer>
+            </body>
+            </html>
         `;
-        
-        printContainer.innerHTML = printContent;
-        window.print();
-        printContainer.innerHTML = '';
+
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(reportHTML);
+        printWindow.document.close();
+        printWindow.focus(); // কিছু ব্রাউজারের জন্য প্রয়োজন
+        setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
     }
 
     // === ফাংশনগুলোকে গ্লোবালি অ্যাক্সেসযোগ্য করা ===

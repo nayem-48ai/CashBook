@@ -29,8 +29,9 @@ main {
 .transaction-switch.out-active .btn-out, .transaction-switch.in-active .btn-in { color: white; }
 .transaction-switch.out-active .btn-in, .transaction-switch.in-active .btn-out { color: #495057; }
 
+/* `@media print` এখন আর প্রিন্টের জন্য সরাসরি ব্যবহার হয় না, কিন্তু রাখলে ভালো */
 @media print {
-    body, .page, .container { margin: 0; padding: 0; background-color: white; }
-    body > *:not(#print-container) { display: none !important; }
-    #print-container { display: block; }
+    body > nav, body > footer, body > .fab, body > .modal {
+        display: none !important;
+    }
 }
