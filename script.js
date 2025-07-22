@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function loadCashbooks() { let content = ''; if (allCashbooks.length === 0) { content = `<div class="col-12 text-center mt-5"><p class="text-muted fs-4">কোনো ক্যাশবুক নেই।</p><p>শুরু করতে নিচের '+' বাটনে ক্লিক করুন।</p></div>`; } else { allCashbooks.forEach((book, index) => { const { totalIn, totalOut, balance } = calculateTotals(book.transactions); content += `<div class="col-md-6 col-lg-4"><div class="card card-link h-100" onclick="window.app.openCashbookDetailsPage(${index})"><div class="card-body"><h5 class="card-title text-primary">${book.name}</h5><p class="mb-1 text-success"><strong>Cash In:</strong> ${totalIn.toFixed(2)}</p><p class="mb-1 text-danger"><strong>Cash Out:</strong> ${totalOut.toFixed(2)}</p><hr><p class="mb-0 fs-5"><strong>অবশিষ্ট:</strong> <span class="fw-bold ${balance >= 0 ? 'text-success' : 'text-danger'}">${balance.toFixed(2)}</span></p></div></div></div>`; }); } pageHome.innerHTML = `<div class="row gy-4">${content}</div>`; }
     function createCashbook() { const input = document.getElementById('newCashbookNameInput'); const name = input.value.trim(); if (!name) return alert('অনুগ্রহ করে একটি নাম দিন।'); allCashbooks.push({ name, transactions: [] }); saveData(); loadCashbooks(); addCashbookModal.hide(); input.value = ''; }
     
-    // === ক্যাটাগরি পেজ (অপরিবর্তিত) ===
+    // === ক্যাটাগরি পেজ ===
     function loadAndDisplayCategories() { let listItems = ''; categories.forEach(cat => listItems += `<li class="list-group-item d-flex justify-content-between align-items-center">${cat}${cat !== 'Others' ? `<button class="btn btn-outline-danger btn-sm" onclick="window.app.removeCategory('${cat}')">Remove</button>` : `<span class="badge bg-secondary">Default</span>`}</li>`); pageCategories.innerHTML = `<h3>Manage Categories</h3><p class="text-muted">Add or remove categories for transactions.</p><div class="card mb-4"><div class="card-body"><h5 class="card-title">Add New Category</h5><div class="input-group"><input type="text" id="newCategoryNameInput" class="form-control" placeholder="Enter new category name"><button class="btn btn-primary" id="add-category-btn" onclick="window.app.addCategory()">Add Category</button></div></div></div><div class="card"><div class="card-header fw-bold">Existing Categories</div><ul class="list-group list-group-flush">${listItems}</ul></div>`; }
     function addCategory() { const btn = document.getElementById('add-category-btn'); const input = document.getElementById('newCategoryNameInput'); const name = input.value.trim(); if (!name) { showToast('Category name cannot be empty.', 'danger'); return; } if (categories.map(c => c.toLowerCase()).includes(name.toLowerCase())) { showToast('This category already exists.', 'danger'); return; } const originalText = btn.innerHTML; btn.disabled = true; btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Adding...`; setTimeout(() => { categories.push(name); saveData(); loadAndDisplayCategories(); showToast('Category Added!', 'success'); }, 500); }
     function removeCategory(name) { if (name === 'Others') return alert('"Others" category cannot be deleted.'); if (confirm(`আপনি কি "${name}" ক্যাটাগরিটি ডিলেট করতে চান?`)) { categories = categories.filter(cat => cat !== name); saveData(); loadAndDisplayCategories(); showToast('Category Removed', 'warning'); } }
@@ -40,15 +40,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const printContainer = document.getElementById('print-container');
         const { totalIn, totalOut, balance } = calculateTotals(book.transactions);
         
-        const rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
-            .map(t => `
-                <tr>
-                    <td>${new Date(t.date).toLocaleDateString('en-CA')}</td>
-                    <td>${t.category}</td>
-                    <td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td>
-                    <td style="text-align: right;">${t.amount.toFixed(2)}</td>
-                </tr>
-            `).join('');
+        let rows = [...book.transactions].sort((a, b) => new Date(a.date) - new Date(b.date))
+            .map(t => `<tr><td>${new Date(t.date).toLocaleDateString('en-CA')}</td><td>${t.category}</td><td>${t.type === 'in' ? 'Cash In' : 'Cash Out'}</td><td style="text-align: right;">${t.amount.toFixed(2)}</td></tr>`).join('');
 
         const reportHTML = `
             <div style="font-family: Arial, sans-serif; margin: 20px;">
@@ -58,26 +51,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     <p style="color: #6c757d; font-size: 12px;">Report Generated on: ${new Date().toLocaleString('en-US')}</p>
                 </div>
                 <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th>
-                            <th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Date</th><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Category</th><th style="padding: 8px; border: 1px solid #ddd; text-align: left; background-color: #f8f9fa;">Type</th><th style="padding: 8px; border: 1px solid #ddd; text-align: right; background-color: #f8f9fa;">Amount</th></tr></thead>
                     <tbody>${rows}</tbody>
-                    <tfoot style="font-weight: bold;">
-                        <tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr>
-                        <tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr>
-                    </tfoot>
+                    <tfoot style="font-weight: bold;"><tr><td colspan="3" style="text-align: right; padding: 8px; padding-top: 15px;">Total Cash In:</td><td style="text-align: right; color: green; padding: 8px; padding-top: 15px;">${totalIn.toFixed(2)}</td></tr><tr><td colspan="3" style="text-align: right; padding: 8px;">Total Cash Out:</td><td style="text-align: right; color: red; padding: 8px;">${totalOut.toFixed(2)}</td></tr><tr><td colspan="3" style="text-align: right; padding: 8px; border-top: 2px solid #343a40;">Balance:</td><td style="text-align: right; padding: 8px; border-top: 2px solid #343a40; color: ${balance >= 0 ? 'green' : 'red'};">${balance.toFixed(2)}</td></tr></tfoot>
                 </table>
-                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">
-                    all Rights reserve © Tnayem48
-                </footer>
-            </div>
-        `;
+                <footer style="text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px;">all Rights reserve © Tnayem48</footer>
+            </div>`;
         
         printContainer.innerHTML = reportHTML;
         window.print();
